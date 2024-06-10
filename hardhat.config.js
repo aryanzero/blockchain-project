@@ -15,8 +15,8 @@ module.exports = {
       volta: {
          url: API_URL,
          accounts: [`0x${PRIVATE_KEY}`],
-         gas: 2100000, // More reasonable gas limit
-         gasPrice: 8000000000, // 8 gwei
+         gas: 210000000,
+         gasPrice: 800000000000,
       }
    },
-};
+}
