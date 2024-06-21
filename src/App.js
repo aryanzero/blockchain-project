@@ -1,164 +1,109 @@
-import { useState, useEffect } from 'react';
-import {ethers} from 'ethers';
-import {contractAbi, contractAddress} from './Constant/constant';
-import Login from './Components/Login';
-import Finished from './Components/Finished';
-import Connected from './Components/Connected';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import Web3 from 'web3';
+import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import VotingSystem from './contracts/VotingSystem.json';
+import Login from './Login';
+import Voting from './Voting';
+import Admin from './Admin'; // Import the Admin component
+import './App.css'; // Create and import a CSS file for transitions
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    background: {
+      default: '#121212',
+    },
+  },
+  typography: {
+    fontFamily: 'Roboto, sans-serif',
+  },
+});
 
 function App() {
-  const [provider, setProvider] = useState(null);
-  const [account, setAccount] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [votingStatus, setVotingStatus] = useState(true);
-  const [remainingTime, setremainingTime] = useState('');
-  const [candidates, setCandidates] = useState([]);
-  const [number, setNumber] = useState('');
-  const [CanVote, setCanVote] = useState(true);
+  const [account, setAccount] = useState('');
+  const [contract, setContract] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  useEffect(() => {
+    async function loadBlockchainData() {
+      if (window.ethereum && isAuthenticated) {
+        const web3 = new Web3(window.ethereum);
+        const accounts = await web3.eth.getAccounts();
+        if (accounts.length > 0) {
+          setAccount(accounts[0]);
 
-  useEffect( () => {
-    getCandidates();
-    getRemainingTime();
-    getCurrentStatus();
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-    }
-
-    return() => {
-      if (window.ethereum) {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-      }
-    }
-  });
-
-
-  async function vote() {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const contractInstance = new ethers.Contract (
-        contractAddress, contractAbi, signer
-      );
-
-      const tx = await contractInstance.vote(number);
-      await tx.wait();
-      canVote();
-  }
-
-
-  async function canVote() {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const contractInstance = new ethers.Contract (
-        contractAddress, contractAbi, signer
-      );
-      const voteStatus = await contractInstance.voters(await signer.getAddress());
-      setCanVote(voteStatus);
-
-  }
-
-  async function getCandidates() {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const contractInstance = new ethers.Contract (
-        contractAddress, contractAbi, signer
-      );
-      const candidatesList = await contractInstance.getAllVotesOfCandiates();
-      const formattedCandidates = candidatesList.map((candidate, index) => {
-        return {
-          index: index,
-          name: candidate.name,
-          voteCount: candidate.voteCount.toNumber()
+          const networkId = await web3.eth.net.getId();
+          const deployedNetwork = VotingSystem.networks[networkId];
+          if (deployedNetwork) {
+            const contract = new web3.eth.Contract(VotingSystem.abi, deployedNetwork.address);
+            setContract(contract);
+          }
         }
-      });
-      setCandidates(formattedCandidates);
-  }
-
-
-  async function getCurrentStatus() {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const contractInstance = new ethers.Contract (
-        contractAddress, contractAbi, signer
-      );
-      const status = await contractInstance.getVotingStatus();
-      console.log(status);
-      setVotingStatus(status);
-  }
-
-  async function getRemainingTime() {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const contractInstance = new ethers.Contract (
-        contractAddress, contractAbi, signer
-      );
-      const time = await contractInstance.getRemainingTime();
-      setremainingTime(parseInt(time, 16));
-  }
-
-  function handleAccountsChanged(accounts) {
-    if (accounts.length > 0 && account !== accounts[0]) {
-      setAccount(accounts[0]);
-      canVote();
-    } else {
-      setIsConnected(false);
-      setAccount(null);
-    }
-  }
-
-  async function connectToMetamask() {
-    if (window.ethereum) {
-      try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        setProvider(provider);
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const address = await signer.getAddress();
-        setAccount(address);
-        console.log("Metamask Connected : " + address);
-        setIsConnected(true);
-        canVote();
-      } catch (err) {
-        console.error(err);
       }
-    } else {
-      console.error("Metamask is not detected in the browser")
     }
-  }
 
-  async function handleNumberChange(e) {
-    setNumber(e.target.value);
-  }
+    loadBlockchainData();
+  }, [isAuthenticated]);
 
   return (
-    <div className="App">
-      { votingStatus ? (isConnected ? (<Connected 
-                      account = {account}
-                      candidates = {candidates}
-                      remainingTime = {remainingTime}
-                      number= {number}
-                      handleNumberChange = {handleNumberChange}
-                      voteFunction = {vote}
-                      showButton = {CanVote}/>) 
-                      
-                      : 
-                      
-                      (<Login connectWallet = {connectToMetamask}/>)) : (<Finished />)}
-      
-    </div>
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <Router>
+        <AnimatedRoutes
+          isAuthenticated={isAuthenticated}
+          account={account}
+          setAccount={setAccount}
+          setIsAuthenticated={setIsAuthenticated}
+          contract={contract}
+        />
+      </Router>
+    </ThemeProvider>
   );
-
-
-
 }
 
-
-
-
+function AnimatedRoutes({ isAuthenticated, account, setAccount, setIsAuthenticated, contract }) {
+  const location = useLocation();
+  return (
+    <TransitionGroup>
+      <CSSTransition key={location.key} classNames="fade" timeout={300}>
+        <Routes location={location}>
+          <Route
+            path="/login"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/voting" />
+              ) : (
+                <Login setIsAuthenticated={setIsAuthenticated} setAccount={setAccount} />
+              )
+            }
+          />
+          <Route
+            path="/voting"
+            element={
+              isAuthenticated ? (
+                <Voting account={account} contract={contract} />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              isAuthenticated ? (
+                <Admin account={account} contract={contract} />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route path="/" element={<Navigate to="/login" />} />
+        </Routes>
+      </CSSTransition>
+    </TransitionGroup>
+  );
+}
 
 export default App;
