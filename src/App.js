@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import Web3 from 'web3';
 import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { CssBaseline, ThemeProvider, createTheme, Box } from '@mui/material';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import VotingSystem from './contracts/VotingSystem.json';
 import Login from './Login';
 import Voting from './Voting';
-import Admin from './Admin'; // Import the Admin component
+import Admin from './Admin';
+import Privacy from './privacy'; // Import the Privacy component
+import Terms from './terms'; // Import the Terms component
+import Header from './Header'; // Import the Header component
+import Footer from './Footer'; // Import the Footer component
 import './App.css'; // Create and import a CSS file for transitions
 
 const darkTheme = createTheme({
@@ -51,13 +55,17 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <Router>
-        <AnimatedRoutes
-          isAuthenticated={isAuthenticated}
-          account={account}
-          setAccount={setAccount}
-          setIsAuthenticated={setIsAuthenticated}
-          contract={contract}
-        />
+        <Header isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+        <Box display="flex" flexDirection="column" minHeight="100vh">
+          <AnimatedRoutes
+            isAuthenticated={isAuthenticated}
+            account={account}
+            setAccount={setAccount}
+            setIsAuthenticated={setIsAuthenticated}
+            contract={contract}
+          />
+          <Footer />
+        </Box>
       </Router>
     </ThemeProvider>
   );
@@ -99,6 +107,8 @@ function AnimatedRoutes({ isAuthenticated, account, setAccount, setIsAuthenticat
               )
             }
           />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
       </CSSTransition>
