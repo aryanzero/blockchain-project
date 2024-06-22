@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Container, Typography, Card, CardContent } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { CSVLink } from 'react-csv';
@@ -42,6 +42,17 @@ function Admin({ account, contract }) {
   const [votes, setVotes] = useState([]);
   const [csvData, setCsvData] = useState([]);
   const [chartData, setChartData] = useState([]);
+  const [candidateNames, setCandidateNames] = useState(['Candidate 1', 'Candidate 2']);
+
+  useEffect(() => {
+    const fetchCandidateNames = async () => {
+      if (contract) {
+        const names = await contract.methods.getCandidateNames().call();
+        setCandidateNames(names);
+      }
+    };
+    fetchCandidateNames();
+  }, [contract]);
 
   const fetchVotes = async () => {
     if (contract) {
@@ -49,13 +60,13 @@ function Admin({ account, contract }) {
       setVotes(results);
       setCsvData([
         ['Candidate', 'Votes'],
-        ['Aryan', results[0]],
-        ['Ansh', results[1]],
+        [candidateNames[0], results[0]],
+        [candidateNames[1], results[1]],
       ]);
       setChartData([
         ['Candidate', 'Votes'],
-        ['Aryan', results[0]],
-        ['Ansh', results[1]],
+        [candidateNames[0], results[0]],
+        [candidateNames[1], results[1]],
       ]);
     }
   };

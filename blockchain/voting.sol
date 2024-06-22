@@ -41,6 +41,12 @@ contract VotingSystem {
 
         emit VoteCast(msg.sender, candidate); // Emit the vote cast event
     }
+    function getAllVotes() external view returns (uint[] memory) {
+    uint[] memory votes = new uint[](2);
+    votes[0] = candidates[0].voteCount;
+    votes[1] = candidates[1].voteCount;
+    return votes;
+}
 
     // Function to get the voting result
     function getResults() external view returns (string memory winnerName, uint winnerVoteCount) {
