@@ -3,6 +3,7 @@ import Web3 from 'web3';
 import { Button, Card, CardContent, Typography, CircularProgress, Container } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { keyframes } from '@emotion/react';
+import { useNavigate } from 'react-router-dom';
 
 const LoginContainer = styled(Container)({
   display: 'flex',
@@ -33,6 +34,17 @@ const LoginButton = styled(Button)({
   },
 });
 
+const AdminButton = styled(Button)({
+  marginTop: '20px',
+  padding: '10px 30px',
+  backgroundColor: '#007bff',
+  fontSize: '1.1rem',
+  '&:hover': {
+    backgroundColor: '#0056b3',
+    color: '#fff',
+  },
+});
+
 const Logo = styled('img')({
   width: '150px',
   marginBottom: '20px',
@@ -53,6 +65,7 @@ const LoginContent = styled(CardContent)({
 
 function Login({ setIsAuthenticated, setAccount }) {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const loginWithMetamask = async () => {
     setLoading(true);
@@ -75,6 +88,10 @@ function Login({ setIsAuthenticated, setAccount }) {
     setLoading(false);
   };
 
+  const handleAdminLogin = () => {
+    navigate('/admin-login');
+  };
+
   return (
     <LoginContainer>
       <LoginCard>
@@ -94,6 +111,12 @@ function Login({ setIsAuthenticated, setAccount }) {
           >
             {loading ? <CircularProgress size={24} /> : 'Login'}
           </LoginButton>
+          <AdminButton
+            variant="contained"
+            onClick={handleAdminLogin}
+          >
+            Admin?
+          </AdminButton>
         </LoginContent>
       </LoginCard>
     </LoginContainer>

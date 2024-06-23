@@ -47,8 +47,9 @@ function Admin({ account, contract }) {
   useEffect(() => {
     const fetchCandidateNames = async () => {
       if (contract) {
-        const names = await contract.methods.getCandidateNames().call();
-        setCandidateNames(names);
+        const name1 = await contract.methods.candidate1Votes().call();
+        const name2 = await contract.methods.candidate2Votes().call();
+        setCandidateNames([name1, name2]);
       }
     };
     fetchCandidateNames();
@@ -56,17 +57,18 @@ function Admin({ account, contract }) {
 
   const fetchVotes = async () => {
     if (contract) {
-      const results = await contract.methods.getAllVotes().call();
-      setVotes(results);
+      const candidate1Votes = await contract.methods.candidate1Votes().call();
+      const candidate2Votes = await contract.methods.candidate2Votes().call();
+      setVotes([candidate1Votes, candidate2Votes]);
       setCsvData([
         ['Candidate', 'Votes'],
-        [candidateNames[0], results[0]],
-        [candidateNames[1], results[1]],
+        [candidateNames[0], candidate1Votes],
+        [candidateNames[1], candidate2Votes],
       ]);
       setChartData([
         ['Candidate', 'Votes'],
-        [candidateNames[0], results[0]],
-        [candidateNames[1], results[1]],
+        [candidateNames[0], candidate1Votes],
+        [candidateNames[1], candidate2Votes],
       ]);
     }
   };
@@ -83,28 +85,31 @@ function Admin({ account, contract }) {
           </Typography>
           <AdminButton onClick={fetchVotes}>Fetch Votes</AdminButton>
           {votes.length > 0 && (
-            <CSVLink data={csvData} filename={"votes_data.csv"} style={{ textDecoration: 'none' }}>
-              <AdminButton>Download CSV</AdminButton>
-            </CSVLink>
-          )}
-          {votes.length > 0 && (
-            <div style={{ marginTop: '20px' }}>
-              <Chart
-                width={'600px'}
-                height={'400px'}
-                chartType="PieChart"
-                loader={<div>Loading Chart...</div>}
-                data={chartData}
-                options={{
-                  title: 'Votes Distribution',
-                  pieHole: 0.4,
-                  is3D: false,
-                  backgroundColor: '#1e1e1e',
-                  legendTextStyle: { color: '#fff' },
-                  titleTextStyle: { color: '#fff' },
-                }}
-              />
-            </div>
+            <>
+              <CSVLink data={csvData} filename={"votes_data.csv"} style={{ textDecoration: 'none' }}>
+                <AdminButton>Download CSV</AdminButton>
+              </CSVLink>
+              <Typography variant="h6" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '600', marginTop: '20px' }}>
+                Total Votes: {votes[0] + votes[1]}
+              </Typography>
+              <div style={{ marginTop: '20px' }}>
+                <Chart
+                  width={'600px'}
+                  height={'400px'}
+                  chartType="PieChart"
+                  loader={<div>Loading Chart...</div>}
+                  data={chartData}
+                  options={{
+                    title: 'Votes Distribution',
+                    pieHole: 0.4,
+                    is3D: false,
+                    backgroundColor: '#1e1e1e',
+                    legendTextStyle: { color: '#fff' },
+                    titleTextStyle: { color: '#fff' },
+                  }}
+                />
+              </div>
+            </>
           )}
         </CardContent>
       </AdminCard>
