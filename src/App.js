@@ -7,11 +7,12 @@ import VotingSystem from './contracts/VotingSystem.json';
 import Login from './Login';
 import Voting from './Voting';
 import Admin from './Admin';
-import Privacy from './privacy'; // Import the Privacy component
-import Terms from './terms'; // Import the Terms component
-import Header from './Header'; // Import the Header component
-import Footer from './Footer'; // Import the Footer component
-import './App.css'; // Create and import a CSS file for transitions
+import AdminLogin from './AdminLogin';
+import Privacy from './privacy';
+import Terms from './terms';
+import Header from './Header';
+import Footer from './Footer';
+import './App.css';
 
 const darkTheme = createTheme({
   palette: {
@@ -29,6 +30,7 @@ function App() {
   const [account, setAccount] = useState('');
   const [contract, setContract] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
   useEffect(() => {
     async function loadBlockchainData() {
@@ -57,62 +59,59 @@ function App() {
       <Router>
         <Header isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
         <Box display="flex" flexDirection="column" minHeight="100vh">
-          <AnimatedRoutes
-            isAuthenticated={isAuthenticated}
-            account={account}
-            setAccount={setAccount}
-            setIsAuthenticated={setIsAuthenticated}
-            contract={contract}
-          />
+          <TransitionGroup>
+            <CSSTransition timeout={300} classNames="fade">
+              <Routes>
+                <Route
+                  path="/login"
+                  element={
+                    isAuthenticated ? (
+                      <Navigate to="/voting" />
+                    ) : (
+                      <Login setIsAuthenticated={setIsAuthenticated} setAccount={setAccount} />
+                    )
+                  }
+                />
+                <Route
+                  path="/voting"
+                  element={
+                    isAuthenticated ? (
+                      <Voting account={account} contract={contract} />
+                    ) : (
+                      <Navigate to="/login" />
+                    )
+                  }
+                />
+                <Route
+                  path="/admin-login"
+                  element={
+                    isAdminAuthenticated ? (
+                      <Navigate to="/admin" />
+                    ) : (
+                      <AdminLogin setIsAuthenticated={setIsAdminAuthenticated} />
+                    )
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    isAdminAuthenticated ? (
+                      <Admin account={account} contract={contract} />
+                    ) : (
+                      <Navigate to="/admin-login" />
+                    )
+                  }
+                />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/" element={<Navigate to="/login" />} />
+              </Routes>
+            </CSSTransition>
+          </TransitionGroup>
           <Footer />
         </Box>
       </Router>
     </ThemeProvider>
-  );
-}
-
-function AnimatedRoutes({ isAuthenticated, account, setAccount, setIsAuthenticated, contract }) {
-  const location = useLocation();
-  return (
-    <TransitionGroup>
-      <CSSTransition key={location.key} classNames="fade" timeout={300}>
-        <Routes location={location}>
-          <Route
-            path="/login"
-            element={
-              isAuthenticated ? (
-                <Navigate to="/voting" />
-              ) : (
-                <Login setIsAuthenticated={setIsAuthenticated} setAccount={setAccount} />
-              )
-            }
-          />
-          <Route
-            path="/voting"
-            element={
-              isAuthenticated ? (
-                <Voting account={account} contract={contract} />
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              isAuthenticated ? (
-                <Admin account={account} contract={contract} />
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/" element={<Navigate to="/login" />} />
-        </Routes>
-      </CSSTransition>
-    </TransitionGroup>
   );
 }
 

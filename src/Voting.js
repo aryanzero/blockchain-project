@@ -86,14 +86,14 @@ function Voting({ account, contract }) {
   useEffect(() => {
     async function loadCandidateData() {
       if (contract) {
-        const candidate1Data = await contract.methods.candidates(0).call();
-        setCandidate1(candidate1Data);
+        const candidate1Votes = await contract.methods.candidate1Votes().call();
+        setCandidate1(prev => ({ ...prev, voteCount: candidate1Votes }));
 
-        const candidate2Data = await contract.methods.candidates(1).call();
-        setCandidate2(candidate2Data);
+        const candidate2Votes = await contract.methods.candidate2Votes().call();
+        setCandidate2(prev => ({ ...prev, voteCount: candidate2Votes }));
 
         const voter = await contract.methods.voters(account).call();
-        setHasVoted(voter.hasVoted);
+        setHasVoted(voter);
       }
     }
 
@@ -126,14 +126,14 @@ function Voting({ account, contract }) {
     if (votingEnded) return;
     try {
       await contract.methods.vote(candidateId).send({ from: account });
-      const candidate1Data = await contract.methods.candidates(0).call();
-      setCandidate1(candidate1Data);
+      const candidate1Votes = await contract.methods.candidate1Votes().call();
+      setCandidate1(prev => ({ ...prev, voteCount: candidate1Votes }));
 
-      const candidate2Data = await contract.methods.candidates(1).call();
-      setCandidate2(candidate2Data);
+      const candidate2Votes = await contract.methods.candidate2Votes().call();
+      setCandidate2(prev => ({ ...prev, voteCount: candidate2Votes }));
 
       const voter = await contract.methods.voters(account).call();
-      setHasVoted(voter.hasVoted);
+      setHasVoted(voter);
     } catch (error) {
       setErrorMessage(error.message);
     }
