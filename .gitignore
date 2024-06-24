@@ -27,7 +27,7 @@ coverage
 coverage.json
 typechain
 typechain-types
-VotingSystem.json
+/src/contracts/VotingSystem.json
 # Hardhat files
 cache
 artifacts

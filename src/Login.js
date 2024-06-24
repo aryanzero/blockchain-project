@@ -83,17 +83,24 @@ function Login({ setIsAuthenticated, setAccount }) {
           // Generate public key hash
           const publicKey = CryptoJS.SHA256(account).toString(CryptoJS.enc.Hex);
           const publicKeyBytes32 = `0x${publicKey.slice(0, 64)}`;
+          console.log("Public Key (bytes32):", publicKeyBytes32);
 
           // Get contract instance
           const networkId = await web3.eth.net.getId();
+          console.log("Network ID:", networkId);
           const deployedNetwork = VotingSystem.networks[networkId];
+          if (!deployedNetwork) {
+            throw new Error(`Contract not deployed on network with ID ${networkId}`);
+          }
+
           const contract = new web3.eth.Contract(
             VotingSystem.abi,
             deployedNetwork && deployedNetwork.address
           );
 
           // Register public key with the contract
-          await contract.methods.registerPublicKey(publicKeyBytes32).send({ from: account });
+          console.log("Registering public key with the contract...");
+          await contract.methods.registerPublicKey(publicKeyBytes32).send({ from: account, gas: 300000 });
 
           setIsAuthenticated(true);
         }
