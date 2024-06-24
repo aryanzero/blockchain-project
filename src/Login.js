@@ -98,11 +98,17 @@ function Login({ setIsAuthenticated, setAccount }) {
             deployedNetwork && deployedNetwork.address
           );
 
-          // Register public key with the contract
-          console.log("Registering public key with the contract...");
-          await contract.methods.registerPublicKey(publicKeyBytes32).send({ from: account, gas: 300000 });
-
-          setIsAuthenticated(true);
+          // Check if the public key is already registered
+          const voter = await contract.methods.voters(account).call();
+          if (voter.publicKey !== '0x0000000000000000000000000000000000000000000000000000000000000000') {
+            console.log('Public key already registered, logging in...');
+            setIsAuthenticated(true);
+          } else {
+            // Register public key with the contract
+            console.log("Registering public key with the contract...");
+            await contract.methods.registerPublicKey(publicKeyBytes32).send({ from: account, gas: 300000 });
+            setIsAuthenticated(true);
+          }
         }
       } catch (error) {
         console.error('Error requesting accounts or registering public key:', error);

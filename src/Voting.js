@@ -83,8 +83,19 @@ function Voting({ account, contract }) {
   const [timeLeft, setTimeLeft] = useState(86400); // 24 hours in seconds
   const [votingEnded, setVotingEnded] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [publicKey, setPublicKey] = useState('');
+  const [votingProof, setVotingProof] = useState('');
 
   useEffect(() => {
+    async function loadVoterData() {
+      if (contract) {
+        const voter = await contract.methods.voters(account).call();
+        setPublicKey(voter.publicKey);
+        setHasVoted(voter.hasVoted);
+        setVotingProof(voter.proof);
+      }
+    }
+
     async function loadCandidateData() {
       if (contract) {
         const candidate1 = await contract.methods.candidates(0).call();
@@ -92,12 +103,10 @@ function Voting({ account, contract }) {
 
         const candidate2 = await contract.methods.candidates(1).call();
         setCandidate2({ name: candidate2.name, voteCount: candidate2.voteCount });
-
-        const voter = await contract.methods.voters(account).call();
-        setHasVoted(voter.hasVoted);
       }
     }
 
+    loadVoterData();
     loadCandidateData();
   }, [contract, account]);
 
@@ -152,6 +161,7 @@ function Voting({ account, contract }) {
 
       const voter = await contract.methods.voters(account).call();
       setHasVoted(voter.hasVoted);
+      setVotingProof(voter.proof); // Set the proof after voting
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -173,7 +183,7 @@ function Voting({ account, contract }) {
           Welcome to Blockchain Voting App
         </Typography>
         <Typography variant="h6" style={{ fontFamily: 'Poppins' }}>
-          Your account: {account}
+          Your public key: {publicKey}
         </Typography>
       </HeaderContainer>
 
@@ -210,9 +220,14 @@ function Voting({ account, contract }) {
             </Grid>
           </Grid>
           {hasVoted && (
-            <Typography variant="h6" style={{ fontFamily: 'Poppins', marginTop: '20px' }}>
-              Thank you for voting!
-            </Typography>
+            <>
+              <Typography variant="h6" style={{ fontFamily: 'Poppins', marginTop: '20px' }}>
+                Thank you for voting!
+              </Typography>
+              <Typography variant="body1" style={{ fontFamily: 'Poppins', marginTop: '10px' }}>
+                Your voting proof: {votingProof}
+              </Typography>
+            </>
           )}
           <Typography variant="h5" style={{ fontFamily: 'Poppins', fontWeight: '600', marginTop: '20px' }}>
             Results
