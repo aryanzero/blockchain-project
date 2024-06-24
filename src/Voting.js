@@ -3,6 +3,7 @@ import { Button, Card, CardContent, Typography, Container, Grid, Box, Dialog, Di
 import { styled } from '@mui/material/styles';
 import { keyframes } from '@emotion/react';
 import Avatar from 'react-avatar';
+import CryptoJS from 'crypto-js';
 
 const VotingContainer = styled(Container)({
   display: 'flex',
@@ -122,10 +123,27 @@ function Voting({ account, contract }) {
     return `${hrs}h ${mins}m ${secs}s`;
   };
 
+  const generateProof = (candidateId) => {
+    // Simulate proof generation
+    const proof = CryptoJS.SHA256(`proof${candidateId}`).toString(CryptoJS.enc.Hex);
+    return `0x${proof}`;
+  };
+
+  const encryptVote = (candidateId) => {
+    // Simulate vote encryption
+    const encryptedVote = CryptoJS.AES.encrypt(`vote${candidateId}`, 'secret-key').toString();
+    const encryptedVoteHash = CryptoJS.SHA256(encryptedVote).toString(CryptoJS.enc.Hex);
+    return `0x${encryptedVoteHash}`;
+  };
+
   const vote = async (candidateId) => {
     if (votingEnded) return;
     try {
-      await contract.methods.vote(candidateId).send({ from: account });
+      const encryptedVote = encryptVote(candidateId);
+      const proof = generateProof(candidateId);
+
+      await contract.methods.vote(candidateId, encryptedVote, proof).send({ from: account });
+
       const candidate1 = await contract.methods.candidates(0).call();
       setCandidate1({ name: candidate1.name, voteCount: candidate1.voteCount });
 

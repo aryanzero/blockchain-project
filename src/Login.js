@@ -4,6 +4,8 @@ import { Button, Card, CardContent, Typography, CircularProgress, Container } fr
 import { styled } from '@mui/material/styles';
 import { keyframes } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
+import VotingSystem from './contracts/VotingSystem.json';
 
 const LoginContainer = styled(Container)({
   display: 'flex',
@@ -75,12 +77,29 @@ function Login({ setIsAuthenticated, setAccount }) {
         await window.ethereum.request({ method: 'eth_requestAccounts' });
         const accounts = await web3.eth.getAccounts();
         if (accounts.length > 0) {
-          setAccount(accounts[0]);
+          const account = accounts[0];
+          setAccount(account);
+
+          // Generate public key hash
+          const publicKey = CryptoJS.SHA256(account).toString(CryptoJS.enc.Hex);
+          const publicKeyBytes32 = `0x${publicKey.slice(0, 64)}`;
+
+          // Get contract instance
+          const networkId = await web3.eth.net.getId();
+          const deployedNetwork = VotingSystem.networks[networkId];
+          const contract = new web3.eth.Contract(
+            VotingSystem.abi,
+            deployedNetwork && deployedNetwork.address
+          );
+
+          // Register public key with the contract
+          await contract.methods.registerPublicKey(publicKeyBytes32).send({ from: account });
+
           setIsAuthenticated(true);
         }
       } catch (error) {
-        console.error('Error requesting accounts:', error);
-        alert('There was an error requesting accounts. Please try again.');
+        console.error('Error requesting accounts or registering public key:', error);
+        alert('There was an error requesting accounts or registering public key. Please try again.');
       }
     } else {
       alert('Please install Metamask to use this app.');
@@ -98,7 +117,7 @@ function Login({ setIsAuthenticated, setAccount }) {
         <LoginContent>
           <Logo src={`${process.env.PUBLIC_URL}/metamask-logo.png`} alt="MetaMask Logo" />
           <Typography variant="h4" gutterBottom style={{ fontFamily: 'Arial, sans-serif' }}>
-            Login with Metamask
+            Login with MetaMask
           </Typography>
           <Typography variant="body1" style={{ marginBottom: '20px', fontFamily: 'Arial, sans-serif' }}>
             Access your blockchain voting account securely with MetaMask. Click the button below to connect your wallet and get started.

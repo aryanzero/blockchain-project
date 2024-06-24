@@ -18,17 +18,23 @@
             "type": "constructor"
         },
         {
+            "anonymous": false,
             "inputs": [
                 {
-                    "internalType": "uint8",
-                    "name": "candidate",
-                    "type": "uint8"
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "voter",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "bytes32",
+                    "name": "publicKey",
+                    "type": "bytes32"
                 }
             ],
-            "name": "vote",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
+            "name": "PublicKeyRegistered",
+            "type": "event"
         },
         {
             "anonymous": false,
@@ -107,6 +113,42 @@
         {
             "inputs": [
                 {
+                    "internalType": "bytes32",
+                    "name": "publicKey",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "registerPublicKey",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint8",
+                    "name": "candidate",
+                    "type": "uint8"
+                },
+                {
+                    "internalType": "bytes32",
+                    "name": "encryptedVote",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bytes32",
+                    "name": "proof",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "vote",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
                     "internalType": "address",
                     "name": "",
                     "type": "address"
@@ -123,6 +165,21 @@
                     "internalType": "uint8",
                     "name": "vote",
                     "type": "uint8"
+                },
+                {
+                    "internalType": "bytes32",
+                    "name": "publicKey",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bytes32",
+                    "name": "encryptedVote",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bytes32",
+                    "name": "proof",
+                    "type": "bytes32"
                 }
             ],
             "stateMutability": "view",
@@ -133,8 +190,8 @@
       "5777": {
         "events": {},
         "links": {},
-        "address": "0x19AcA15A3E39847bB919AE667BEdDb54BE13923E",
-        "transactionHash": "0x36e1ff084b85f9a47bcdec976af96aa568a65259e82a2e3dc3933d0e56d10d0f"
+        "address": "0x92B632F9FD93a4587fAFdf8E38E03bc291663F2b",
+        "transactionHash": "0x7fe04a0f63c2fb856eafe4861566a77fe44241ad9fd5f0628ffb0254350627ca"
       }
     }
   }
