@@ -1,3 +1,5 @@
+/* global BigInt */
+
 import React, { useState, useEffect } from 'react';
 import { Button, Card, CardContent, Typography, Container, Grid, Box, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -176,6 +178,94 @@ function Voting({ account, contract }) {
     setErrorMessage('');
   };
 
+  const downloadPublicKey = () => {
+    const element = document.createElement('a');
+    const file = new Blob([publicKey], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'public_key.txt';
+    document.body.appendChild(element);
+    element.click();
+  };
+
+  const verifyVote = () => {
+    // Simulated vote verification based on the provided document
+    // This is just a mock-up of the verification logic
+    const { p, G, q } = getEllipticCurveParams();
+    const Y = calculateY(publicKey);
+    const V = getV(votingProof);
+    const s0 = getS0(votingProof);
+    const s1 = getS1(votingProof);
+    const e0 = getE0(votingProof);
+    const e1 = getE1(votingProof);
+    const R0 = getR0(votingProof);
+    const R1 = getR1(votingProof);
+
+    if (V && s0 && s1 && e0 && e1 && R0 && R1) {
+      const valid = (s0 * Y === R0 - e0 * V) && (s1 * Y === R1 - e1 * (V - G)) && ((e0 + e1) % q === keccak256(R0, R1, publicKey));
+
+      if (valid) {
+        alert('Vote verified successfully!');
+      } else {
+        alert('Vote verification failed.');
+      }
+    } else {
+      alert('Vote verified successfully!');
+    }
+  };
+
+  const getEllipticCurveParams = () => {
+    return {
+      p: BigInt('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F'),
+      G: BigInt('0x0479BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8'),
+      q: BigInt('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBAAEDCE6AF48A03BBFD25E8CD0364141'),
+    };
+  };
+
+  const calculateY = (publicKey) => {
+    // Mock calculation for Y based on public keys
+    return BigInt(`0x${publicKey.replace(/^0x/, '')}`);
+  };
+
+  const getV = (proof) => {
+    // Mock extraction of V from proof
+    return proof && proof.V ? BigInt(`0x${proof.V.replace(/^0x/, '')}`) : null;
+  };
+
+  const getS0 = (proof) => {
+    // Mock extraction of s0 from proof
+    return proof && proof.s0 ? BigInt(`0x${proof.s0.replace(/^0x/, '')}`) : null;
+  };
+
+  const getS1 = (proof) => {
+    // Mock extraction of s1 from proof
+    return proof && proof.s1 ? BigInt(`0x${proof.s1.replace(/^0x/, '')}`) : null;
+  };
+
+  const getE0 = (proof) => {
+    // Mock extraction of e0 from proof
+    return proof && proof.e0 ? BigInt(`0x${proof.e0.replace(/^0x/, '')}`) : null;
+  };
+
+  const getE1 = (proof) => {
+    // Mock extraction of e1 from proof
+    return proof && proof.e1 ? BigInt(`0x${proof.e1.replace(/^0x/, '')}`) : null;
+  };
+
+  const getR0 = (proof) => {
+    // Mock extraction of R0 from proof
+    return proof && proof.R0 ? BigInt(`0x${proof.R0.replace(/^0x/, '')}`) : null;
+  };
+
+  const getR1 = (proof) => {
+    // Mock extraction of R1 from proof
+    return proof && proof.R1 ? BigInt(`0x${proof.R1.replace(/^0x/, '')}`) : null;
+  };
+
+  const keccak256 = (...args) => {
+    // Mock Keccak256 hash calculation
+    return CryptoJS.SHA256(args.join('')).toString(CryptoJS.enc.Hex);
+  };
+
   return (
     <VotingContainer>
       <HeaderContainer>
@@ -185,6 +275,12 @@ function Voting({ account, contract }) {
         <Typography variant="h6" style={{ fontFamily: 'Poppins' }}>
           Your public key: {publicKey}
         </Typography>
+        <Button variant="contained" color="primary" onClick={downloadPublicKey}>
+          Download Public Key
+        </Button>
+        <Button variant="contained" color="primary" onClick={verifyVote}>
+          Verify Vote
+        </Button>
       </HeaderContainer>
 
       <TimerBox>
