@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Web3 from 'web3';
-import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
 import { CssBaseline, ThemeProvider, createTheme, Box } from '@mui/material';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import VotingSystem from './contracts/VotingSystem.json';
@@ -32,24 +32,28 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
-  useEffect(() => {
-    async function loadBlockchainData() {
-      if (window.ethereum && isAuthenticated) {
-        const web3 = new Web3(window.ethereum);
-        const accounts = await web3.eth.getAccounts();
-        if (accounts.length > 0) {
-          setAccount(accounts[0]);
+  const loadBlockchainData = async () => {
+    if (window.ethereum && isAuthenticated) {
+      const web3 = new Web3(window.ethereum);
+      const accounts = await web3.eth.getAccounts();
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
 
-          const networkId = await web3.eth.net.getId();
-          const deployedNetwork = VotingSystem.networks[networkId];
-          if (deployedNetwork) {
-            const contract = new web3.eth.Contract(VotingSystem.abi, deployedNetwork.address);
-            setContract(contract);
-          }
+        const networkId = await web3.eth.net.getId();
+        const deployedNetwork = VotingSystem.networks[networkId];
+        if (deployedNetwork) {
+          const contract = new web3.eth.Contract(VotingSystem.abi, deployedNetwork.address);
+          setContract(contract);
+        } else {
+          console.error("Contract not deployed on the detected network.");
         }
+      } else {
+        console.error("No accounts found. Please check your MetaMask.");
       }
     }
+  };
 
+  useEffect(() => {
     loadBlockchainData();
   }, [isAuthenticated]);
 

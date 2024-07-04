@@ -36,7 +36,7 @@ const LoginButton = styled(Button)({
 });
 
 const Logo = styled('img')({
-  width: '150px',
+  width: '75px', // Reduced size
   marginBottom: '20px',
 });
 
@@ -63,7 +63,7 @@ function AdminLogin({ setIsAuthenticated }) {
     <AdminLoginContainer>
       <AdminLoginCard>
         <CardContent>
-          <Logo src={`${process.env.PUBLIC_URL}/admin-logo.png`} alt="Admin Logo" />
+          <Logo src="/manager.png" alt="Admin Logo" />
           <Typography variant="h4" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700', color: '#0d47a1' }}>
             Admin Login
           </Typography>
