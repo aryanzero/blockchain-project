@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
-import { Button, Card, CardContent, Typography, CircularProgress, Container } from '@mui/material';
+import { Button, Card, CardContent, Typography, CircularProgress, Container, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { keyframes } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
@@ -14,36 +14,39 @@ const LoginContainer = styled(Container)({
   justifyContent: 'center',
   height: '100vh',
   textAlign: 'center',
-  backgroundColor: '#121212',
+  backgroundColor: '#e3f2fd', // light blue background
 });
 
 const LoginCard = styled(Card)({
   maxWidth: 600,
   padding: '40px 20px',
   textAlign: 'center',
-  backgroundColor: '#1e1e1e',
-  color: '#fff',
+  backgroundColor: '#ffffff', // light grey background
+  color: '#1e1e1e',
+  boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
 });
 
 const LoginButton = styled(Button)({
   marginTop: '20px',
   padding: '10px 30px',
-  backgroundColor: '#f6851b',
+  backgroundColor: '#f44336', // red color
   fontSize: '1.1rem',
+  fontWeight: 'bold',
+  color: '#fff',
   '&:hover': {
-    backgroundColor: '#e57c04',
-    color: '#fff',
+    backgroundColor: '#d32f2f', // darker red on hover
   },
 });
 
 const AdminButton = styled(Button)({
   marginTop: '20px',
   padding: '10px 30px',
-  backgroundColor: '#007bff',
+  backgroundColor: '#0d47a1', // vibrant blue color
   fontSize: '1.1rem',
+  fontWeight: 'bold',
+  color: '#fff',
   '&:hover': {
-    backgroundColor: '#0056b3',
-    color: '#fff',
+    backgroundColor: '#0b3a8a', // darker blue on hover
   },
 });
 
@@ -129,26 +132,28 @@ function Login({ setIsAuthenticated, setAccount }) {
       <LoginCard>
         <LoginContent>
           <Logo src={`${process.env.PUBLIC_URL}/metamask-logo.png`} alt="MetaMask Logo" />
-          <Typography variant="h4" gutterBottom style={{ fontFamily: 'Arial, sans-serif' }}>
+          <Typography variant="h4" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700', color: '#0d47a1' }}>
             Login with MetaMask
           </Typography>
-          <Typography variant="body1" style={{ marginBottom: '20px', fontFamily: 'Arial, sans-serif' }}>
+          <Typography variant="body1" style={{ marginBottom: '20px', fontFamily: 'Poppins', color: '#1e1e1e' }}>
             Access your blockchain voting account securely with MetaMask. Click the button below to connect your wallet and get started.
           </Typography>
-          <LoginButton
-            variant="contained"
-            color="primary"
-            onClick={loginWithMetamask}
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={24} /> : 'Login'}
-          </LoginButton>
-          <AdminButton
-            variant="contained"
-            onClick={handleAdminLogin}
-          >
-            Admin?
-          </AdminButton>
+          <Box display="flex" flexDirection="column" alignItems="center">
+            <LoginButton
+              variant="contained"
+              color="primary"
+              onClick={loginWithMetamask}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} /> : 'Login'}
+            </LoginButton>
+            <AdminButton
+              variant="contained"
+              onClick={handleAdminLogin}
+            >
+              Admin?
+            </AdminButton>
+          </Box>
         </LoginContent>
       </LoginCard>
     </LoginContainer>
