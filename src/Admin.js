@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button, Container, Typography, Card, CardContent } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -11,7 +12,7 @@ const AdminContainer = styled(Container)({
   justifyContent: 'center',
   minHeight: '100vh',
   textAlign: 'center',
-  backgroundColor: '#121212',
+  backgroundColor: '#e3f2fd', // light blue background
   padding: '20px',
 });
 
@@ -19,8 +20,8 @@ const AdminCard = styled(Card)({
   width: '100%',
   maxWidth: 800,
   textAlign: 'center',
-  backgroundColor: '#1e1e1e',
-  color: '#fff',
+  backgroundColor: '#ffffff', // light grey background
+  color: '#1e1e1e',
   padding: '20px',
   boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
   marginBottom: '20px',
@@ -29,12 +30,12 @@ const AdminCard = styled(Card)({
 const AdminButton = styled(Button)({
   marginTop: '10px',
   padding: '10px 20px',
-  backgroundColor: '#f6851b',
+  backgroundColor: '#f44336', // red color
   fontSize: '1rem',
   fontWeight: 'bold',
+  color: '#fff',
   '&:hover': {
-    backgroundColor: '#e57c04',
-    color: '#fff',
+    backgroundColor: '#d32f2f', // darker red on hover
   },
 });
 
@@ -88,7 +89,7 @@ function Admin({ account, contract }) {
 
   return (
     <AdminContainer>
-      <Typography variant="h3" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700' }}>
+      <Typography variant="h3" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700', color: '#0d47a1' }}>
         Admin Panel
       </Typography>
       <AdminCard>
