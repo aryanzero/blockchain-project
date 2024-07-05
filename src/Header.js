@@ -9,7 +9,7 @@ const Logo = styled('img')({
 });
 
 const HeaderContainer = styled(AppBar)({
-  backgroundColor: '#0d47a1', // Changed to a vibrant blue color
+  backgroundColor: '#240046', // Changed to a vibrant blue color
   boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
 });
 
@@ -22,7 +22,7 @@ const LogoLink = styled(Link)({
 });
 
 const LogoutButton = styled(Button)({
-  backgroundColor: '#f44336', // Changed to a red color for better contrast
+  backgroundColor: '#240046', // Changed to a red color for better contrast
   color: '#fff',
   fontFamily: 'Poppins',
   fontWeight: '600',

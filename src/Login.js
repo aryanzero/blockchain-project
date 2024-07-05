@@ -1,52 +1,54 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
 import { Button, Card, CardContent, Typography, CircularProgress, Container, Box } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { keyframes } from '@emotion/react';
+import { styled, css, keyframes } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
 import VotingSystem from './contracts/VotingSystem.json';
 
-const LoginContainer = styled(Container)({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: '100vh',
-  textAlign: 'center',
-  backgroundColor: '#e3f2fd', // light blue background
-});
+const LoginContainer = styled(Container)(
+  () => css`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    background-color: #FFFFFF; // light blue background
+    max-width: 1900px !important;
+    width: 100%;
+  `,
+);
 
 const LoginCard = styled(Card)({
-  maxWidth: 600,
   padding: '40px 20px',
   textAlign: 'center',
   backgroundColor: '#ffffff', // light grey background
-  color: '#1e1e1e',
+  color: '#240750',
   boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
 });
 
 const LoginButton = styled(Button)({
   marginTop: '20px',
   padding: '10px 30px',
-  backgroundColor: '#f44336', // red color
+  backgroundColor: '#6200ea', // purple color
   fontSize: '1.1rem',
   fontWeight: 'bold',
   color: '#fff',
   '&:hover': {
-    backgroundColor: '#d32f2f', // darker red on hover
+    backgroundColor: '#4a148c', // darker purple on hover
   },
 });
 
 const AdminButton = styled(Button)({
   marginTop: '20px',
   padding: '10px 30px',
-  backgroundColor: '#0d47a1', // vibrant blue color
+  backgroundColor: '#9575cd', // lighter purple color
   fontSize: '1.1rem',
   fontWeight: 'bold',
   color: '#fff',
   '&:hover': {
-    backgroundColor: '#0b3a8a', // darker blue on hover
+    backgroundColor: '#7e57c2', // slightly darker purple on hover
   },
 });
 
@@ -132,13 +134,14 @@ function Login({ setIsAuthenticated, setAccount }) {
       <LoginCard>
         <LoginContent>
           <Logo src={`${process.env.PUBLIC_URL}/metamask-logo.png`} alt="MetaMask Logo" />
-          <Typography variant="h4" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700', color: '#0d47a1' }}>
+          <Typography variant="h4" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700', color: '#240750' }}>
             Login with MetaMask
           </Typography>
-          <Typography variant="body1" style={{ marginBottom: '20px', fontFamily: 'Poppins', color: '#1e1e1e' }}>
-            Access your blockchain voting account securely with MetaMask. Click the button below to connect your wallet and get started.
+          <Typography variant="body1" style={{ marginBottom: '20px', fontFamily: 'Poppins', color: '#240750' }}>
+            Access your blockchain voting account securely with MetaMask.
+            Click the button below to connect your wallet and get started.
           </Typography>
-          <Box display="flex" flexDirection="column" alignItems="center">
+          <Box display="flex" flexDirection="row" alignItems="center" justifyContent="center" gap="10px">
             <LoginButton
               variant="contained"
               color="primary"
