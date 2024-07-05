@@ -1,40 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Container, Typography, Card, CardContent } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { styled, css } from '@mui/material/styles';
 import { CSVLink } from 'react-csv';
 import { Chart } from 'react-google-charts';
 
-const AdminContainer = styled(Container)({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '100vh',
-  textAlign: 'center',
-  backgroundColor: '#E4E7EA', // Updated background color
-  padding: '20px',
-});
+const AdminContainer = styled(Container)(
+  () => css`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    background-color: #f5f5f5; // Light gray background
+    padding: 20px;
+    max-width: 1900px !important;
+    width: 100%;
+  `,
+);
 
 const AdminCard = styled(Card)({
   width: '100%',
-  maxWidth: 800,
+  maxWidth: 600,
   textAlign: 'center',
-  backgroundColor: '#34495E', // Updated background color
-  color: '#fff', // Updated text color
-  padding: '20px',
-  boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
+  backgroundColor: '#ffffff', // White background
+  color: '#333', // Dark text color
+  padding: '30px',
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+  borderRadius: '8px',
   marginBottom: '20px',
 });
 
 const AdminButton = styled(Button)({
   marginTop: '10px',
   padding: '10px 20px',
-  backgroundColor: '#1ABB9C', // Updated button color
+  backgroundColor: '#4a148c', // Darker purple color
   fontSize: '1rem',
   fontWeight: 'bold',
   color: '#fff',
   '&:hover': {
-    backgroundColor: '#16A085', // Darker button color on hover
+    backgroundColor: '#38006b', // Even darker purple on hover
   },
 });
 
@@ -43,7 +48,13 @@ const ButtonContainer = styled('div')({
   justifyContent: 'center',
   alignItems: 'center',
   gap: '10px',
-  marginTop: '10px',
+  marginTop: '20px',
+});
+
+const ChartContainer = styled('div')({
+  marginTop: '20px',
+  width: '100%',
+  maxWidth: '600px',
 });
 
 function Admin({ account, contract }) {
@@ -103,12 +114,12 @@ function Admin({ account, contract }) {
 
   return (
     <AdminContainer>
-      <Typography variant="h3" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700', color: '#1ABB9C' }}>
+      <Typography variant="h3" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700', color: '#240750' }}>
         Admin Panel
       </Typography>
       <AdminCard>
         <CardContent>
-          <Typography variant="h5" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '600', color: '#fff' }}>
+          <Typography variant="h5" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '600' }}>
             Download Votes Data
           </Typography>
           <ButtonContainer>
@@ -123,12 +134,12 @@ function Admin({ account, contract }) {
           </ButtonContainer>
           {votes.length > 0 && (
             <>
-              <Typography variant="h6" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '600', marginTop: '20px', color: '#fff' }}>
+              <Typography variant="h6" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '600', marginTop: '20px' }}>
                 Total Votes: {votes.reduce((acc, count) => acc + count, 0)}
               </Typography>
-              <div style={{ marginTop: '20px' }}>
+              <ChartContainer>
                 <Chart
-                  width={'600px'}
+                  width={'100%'}
                   height={'400px'}
                   chartType="PieChart"
                   loader={<div>Loading Chart...</div>}
@@ -137,12 +148,16 @@ function Admin({ account, contract }) {
                     title: 'Votes Distribution',
                     pieHole: 0.4,
                     is3D: false,
-                    backgroundColor: '#34495E',
-                    legendTextStyle: { color: '#fff' },
-                    titleTextStyle: { color: '#fff' },
+                    backgroundColor: '#ffffff',
+                    legendTextStyle: { color: '#333' },
+                    titleTextStyle: { color: '#333' },
+                    slices: [
+                      { color: '#9575cd' }, // Dark purple for candidate 1
+                      { color: '#4a148c' }, // Darker purple for candidate 2
+                    ],
                   }}
                 />
-              </div>
+              </ChartContainer>
             </>
           )}
         </CardContent>

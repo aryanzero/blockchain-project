@@ -1,37 +1,40 @@
 import React, { useState } from 'react';
 import { Button, TextField, Card, CardContent, Typography, CircularProgress, Container } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { styled, css } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { auth, signInWithEmailAndPassword } from './firebase';
 
-const AdminLoginContainer = styled(Container)({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: '100vh',
-  textAlign: 'center',
-  backgroundColor: '#e3f2fd', // light blue background
-});
+const AdminLoginContainer = styled(Container)(
+  () => css`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    background-color: #ffffff; // light blue background
+    max-width: 1900px !important;
+    width: 100%;
+  `,
+);
 
 const AdminLoginCard = styled(Card)({
-  maxWidth: 600,
   padding: '40px 20px',
   textAlign: 'center',
   backgroundColor: '#ffffff', // light grey background
-  color: '#1e1e1e',
+  color: '#240750', // text color
   boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
 });
 
 const LoginButton = styled(Button)({
   marginTop: '20px',
   padding: '10px 30px',
-  backgroundColor: '#f44336', // red color
+  backgroundColor: '#6200ea', // button color
   fontSize: '1.1rem',
   fontWeight: 'bold',
   color: '#fff',
   '&:hover': {
-    backgroundColor: '#d32f2f', // darker red on hover
+    backgroundColor: '#4a148c', // darker button color on hover
   },
 });
 
@@ -60,11 +63,11 @@ function AdminLogin({ setIsAuthenticated }) {
   };
 
   return (
-    <AdminLoginContainer>
-      <AdminLoginCard>
-        <CardContent>
+    <AdminLoginContainer style={{ maxwidth: '1920px !important'}}>
+      <AdminLoginCard style={{ minwidth: '1920px !important'}}>
+        <CardContent style={{ maxwidth: '1920px !important'}}>
           <Logo src="/manager.png" alt="Admin Logo" />
-          <Typography variant="h4" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700', color: '#0d47a1' }}>
+          <Typography variant="h4" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700', color: '#240750' }}>
             Admin Login
           </Typography>
           <TextField
@@ -74,8 +77,8 @@ function AdminLogin({ setIsAuthenticated }) {
             margin="normal"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            InputProps={{ style: { color: '#1e1e1e', backgroundColor: '#ffffff' } }} // Ensure visibility
-            InputLabelProps={{ style: { color: '#1e1e1e' } }}
+            InputProps={{ style: { color: '#240750', backgroundColor: '#ffffff' } }} // Ensure visibility
+            InputLabelProps={{ style: { color: '#240750' } }}
           />
           <TextField
             label="Password"
@@ -85,8 +88,8 @@ function AdminLogin({ setIsAuthenticated }) {
             margin="normal"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            InputProps={{ style: { color: '#1e1e1e', backgroundColor: '#ffffff' } }} // Ensure visibility
-            InputLabelProps={{ style: { color: '#1e1e1e' } }}
+            InputProps={{ style: { color: '#240750', backgroundColor: '#ffffff' } }} // Ensure visibility
+            InputLabelProps={{ style: { color: '#240750' } }}
           />
           <LoginButton
             variant="contained"
