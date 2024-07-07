@@ -353,11 +353,15 @@
 // export default Voting;
 /* global BigInt */
 /* global BigInt */
+// src/components/Voting.js
+/* global BigInt */
 import React, { useState, useEffect } from 'react';
 import { Button, Card, CardContent, Typography, Container, Grid, Box, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { styled, css, keyframes } from '@mui/material/styles';
 import Avatar from 'react-avatar';
 import CryptoJS from 'crypto-js';
+import { db } from './firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const rotateRWB = keyframes`
   0% { background-position: 0em 0em; }
@@ -495,6 +499,18 @@ function Voting({ account, contract }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [publicKey, setPublicKey] = useState('');
   const [votingProof, setVotingProof] = useState('');
+  const [isElectionActive, setIsElectionActive] = useState(false);
+
+  useEffect(() => {
+    async function loadElectionStatus() {
+      const electionDoc = await getDoc(doc(db, 'election', 'status'));
+      if (electionDoc.exists()) {
+        setIsElectionActive(electionDoc.data().isActive);
+      }
+    }
+
+    loadElectionStatus();
+  }, []);
 
   useEffect(() => {
     async function loadVoterData() {
@@ -556,7 +572,7 @@ function Voting({ account, contract }) {
   };
 
   const vote = async (candidateId) => {
-    if (votingEnded) return;
+    if (votingEnded || !isElectionActive) return;
     try {
       const encryptedVote = encryptVote(candidateId);
       const proof = generateProof(candidateId);
@@ -677,7 +693,9 @@ function Voting({ account, contract }) {
   return (
     <VotingContainer>
       <HeaderContainer>
-        <AnimatedHeading>Vote</AnimatedHeading>       
+        
+        <AnimatedHeading>Vote</AnimatedHeading>
+          
         <Typography variant="h3" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700', color: '#240750' }}>
           Welcome to Blockchain Voting App
         </Typography>

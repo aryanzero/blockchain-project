@@ -3,6 +3,8 @@ import { Button, Container, Typography, Card, CardContent } from '@mui/material'
 import { styled, css } from '@mui/material/styles';
 import { CSVLink } from 'react-csv';
 import { Chart } from 'react-google-charts';
+import { db } from './firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 const AdminContainer = styled(Container)(
   () => css`
@@ -63,6 +65,18 @@ function Admin({ account, contract }) {
   const [chartData, setChartData] = useState([]);
   const [candidateNames, setCandidateNames] = useState(['Candidate 1', 'Candidate 2']);
   const [loading, setLoading] = useState(false);
+  const [isElectionActive, setIsElectionActive] = useState(false);
+
+  useEffect(() => {
+    const fetchElectionStatus = async () => {
+      const electionDoc = await getDoc(doc(db, 'election', 'status'));
+      if (electionDoc.exists()) {
+        setIsElectionActive(electionDoc.data().isActive);
+      }
+    };
+
+    fetchElectionStatus();
+  }, []);
 
   useEffect(() => {
     const fetchCandidateNames = async () => {
@@ -112,6 +126,14 @@ function Admin({ account, contract }) {
     }
   };
 
+  const toggleElectionStatus = async () => {
+    const newStatus = !isElectionActive;
+    setIsElectionActive(newStatus);
+    await updateDoc(doc(db, 'election', 'status'), {
+      isActive: newStatus,
+    });
+  };
+
   return (
     <AdminContainer>
       <Typography variant="h3" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '700', color: '#240750' }}>
@@ -120,6 +142,12 @@ function Admin({ account, contract }) {
       <AdminCard>
         <CardContent>
           <Typography variant="h5" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '600' }}>
+            Election Control
+          </Typography>
+          <AdminButton onClick={toggleElectionStatus}>
+            {isElectionActive ? 'Stop Election' : 'Start Election'}
+          </AdminButton>
+          <Typography variant="h5" gutterBottom style={{ fontFamily: 'Poppins', fontWeight: '600', marginTop: '20px' }}>
             Download Votes Data
           </Typography>
           <ButtonContainer>
