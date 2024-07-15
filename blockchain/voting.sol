@@ -8,6 +8,7 @@ contract VotingSystem {
         bytes32 publicKey;
         bytes32 encryptedVote;
         bytes32 proof;
+        bool isVerifiedByAdmin;
     }
 
     struct Candidate {
@@ -22,6 +23,7 @@ contract VotingSystem {
 
     event VoteCast(address indexed voter, uint8 candidate);
     event PublicKeyRegistered(address indexed voter, bytes32 publicKey);
+    event VoterVerified(address indexed voter);
 
     constructor(string memory candidate1, string memory candidate2) {
         candidates[0] = Candidate(candidate1, 0);
@@ -37,11 +39,19 @@ contract VotingSystem {
             vote: 0,
             publicKey: publicKey,
             encryptedVote: "",
-            proof: ""
+            proof: "",
+            isVerifiedByAdmin: false
         });
         
         voterAddresses.push(msg.sender);
         emit PublicKeyRegistered(msg.sender, publicKey);
+    }
+
+    function verifyVoter(address voterAddress) external {
+        Voter storage voter = voters[voterAddress];
+        require(!voter.isVerifiedByAdmin, "Voter already verified");
+        voter.isVerifiedByAdmin = true;
+        emit VoterVerified(voterAddress);
     }
 
     function vote(uint8 candidate, bytes32 encryptedVote, bytes32 proof) external {
@@ -64,14 +74,29 @@ contract VotingSystem {
         votes[1] = candidates[1].voteCount;
         return votes;
     }
-function getAllVoters() external view returns (bytes32[] memory) {
-    bytes32[] memory publicKeys = new bytes32[](voterAddresses.length);
-    for (uint i = 0; i < voterAddresses.length; i++) {
-        publicKeys[i] = voters[voterAddresses[i]].publicKey;
-    }
-    return publicKeys;
-}
 
+    function getVoterAddresses() external view returns (address[] memory) {
+        return voterAddresses;
+    }
+
+    function getVoterPublicKeys() external view returns (bytes32[] memory) {
+        bytes32[] memory publicKeys = new bytes32[](voterAddresses.length);
+        for (uint i = 0; i < voterAddresses.length; i++) {
+            publicKeys[i] = voters[voterAddresses[i]].publicKey;
+        }
+        return publicKeys;
+    }
+
+    function getVoterVerifications() external view returns (bool[] memory) {
+        bool[] memory verifications = new bool[](voterAddresses.length);
+        for (uint i = 0; i < voterAddresses.length; i++) {
+            verifications[i] = voters[voterAddresses[i]].isVerifiedByAdmin;
+        }
+        return verifications;
+    }
+function isVoterVerified(address voterAddress) external view returns (bool) {
+    return voters[voterAddress].isVerifiedByAdmin;
+}
     function getResults() external view returns (string memory winnerName, uint winnerVoteCount) {
         if (candidates[0].voteCount > candidates[1].voteCount) {
             return (candidates[0].name, candidates[0].voteCount);
