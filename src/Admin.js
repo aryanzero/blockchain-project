@@ -74,6 +74,10 @@ const StyledTabs = styled(Tabs)({
 
 const FullWidthListItemText = styled(ListItemText)({
   wordWrap: 'break-word',
+  fontWeight: 'bold', // Make the font bold
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Add box shadow
+  padding: '10px', // Add padding for better spacing
+  borderRadius: '8px', // Add border radius for rounded corners
 });
 
 function Admin({ account, contract }) {
@@ -269,9 +273,11 @@ function Admin({ account, contract }) {
                     <ListItem key={voter.address} sx={{ display: 'flex', alignItems: 'center' }}>
                       <FullWidthListItemText primary={`${voter.publicKey} ${voter.isVerifiedByAdmin ? '(Verified)' : '(Not Verified)'}`} />
                       {!voter.isVerifiedByAdmin && (
-                        <AdminButton onClick={() => verifyVoter(voter.address)} disabled={loading}>
-                          Verify
-                        </AdminButton>
+                        <Box sx={{ marginLeft: '20px' }}> {/* Add space between public key and verify button */}
+                          <AdminButton onClick={() => verifyVoter(voter.address)} disabled={loading}>
+                            Verify
+                          </AdminButton>
+                        </Box>
                       )}
                     </ListItem>
                   ))}
