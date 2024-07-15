@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
-import { Button, Card, CardContent, Typography, CircularProgress, Container, Box } from '@mui/material';
+import { Button, Card, CardContent, Typography, CircularProgress, Container, Box, Alert } from '@mui/material';
 import { styled, css, keyframes } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
@@ -72,10 +72,13 @@ const LoginContent = styled(CardContent)({
 
 function Login({ setIsAuthenticated, setAccount }) {
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('info');
   const navigate = useNavigate();
 
   const loginWithMetamask = async () => {
     setLoading(true);
+    setMessage('');
     if (window.ethereum) {
       const web3 = new Web3(window.ethereum);
       try {
@@ -106,21 +109,40 @@ function Login({ setIsAuthenticated, setAccount }) {
           // Check if the public key is already registered
           const voter = await contract.methods.voters(account).call();
           if (voter.publicKey !== '0x0000000000000000000000000000000000000000000000000000000000000000') {
-            console.log('Public key already registered, logging in...');
-            setIsAuthenticated(true);
+            console.log('Public key already registered, checking verification status...');
+            const isVerified = await contract.methods.isVoterVerified(account).call();
+            if (isVerified) {
+              console.log('Voter is verified, logging in...');
+              setIsAuthenticated(true);
+            } else {
+              console.error('Voter is not verified by admin.');
+              setMessageType('error');
+              setMessage('You are not verified by the admin. Please contact the admin for verification.');
+            }
           } else {
             // Register public key with the contract
             console.log("Registering public key with the contract...");
             await contract.methods.registerPublicKey(publicKeyBytes32).send({ from: account, gas: 300000 });
-            setIsAuthenticated(true);
+            console.log('Public key registered, checking verification status...');
+            const isVerified = await contract.methods.isVoterVerified(account).call();
+            if (isVerified) {
+              console.log('Voter is verified, logging in...');
+              setIsAuthenticated(true);
+            } else {
+              console.error('Voter is not verified by admin.');
+              setMessageType('error');
+              setMessage('You are not verified by the admin. Please contact the admin for verification.');
+            }
           }
         }
       } catch (error) {
         console.error('Error requesting accounts or registering public key:', error);
-        alert('There was an error requesting accounts or registering public key. Please try again.');
+        setMessageType('error');
+        setMessage('There was an error requesting accounts or registering public key. Please try again.');
       }
     } else {
-      alert('Please install Metamask to use this app.');
+      setMessageType('error');
+      setMessage('Please install Metamask to use this app.');
     }
     setLoading(false);
   };
@@ -157,6 +179,11 @@ function Login({ setIsAuthenticated, setAccount }) {
               Admin?
             </AdminButton>
           </Box>
+          {message && (
+            <Alert severity={messageType} style={{ marginTop: '20px' }}>
+              {message}
+            </Alert>
+          )}
         </LoginContent>
       </LoginCard>
     </LoginContainer>
