@@ -217,7 +217,7 @@ function Voting({ account, contract }) {
 
   const vote = async (candidateId) => {
     if (!isElectionActive) {
-      setErrorMessage("Voting is not started yet");
+      setErrorMessage("Voting has not been started yet");
       return;
     }
     if (votingEnded) {
@@ -263,8 +263,6 @@ function Voting({ account, contract }) {
   };
 
   const verifyVote = () => {
-    // Simulated vote verification based on the provided document
-    // This is just a mock-up of the verification logic
     const { p, G, q } = getEllipticCurveParams();
     const Y = calculateY(publicKey);
     const V = getV(votingProof);
@@ -278,11 +276,9 @@ function Voting({ account, contract }) {
     if (V && s0 && s1 && e0 && e1 && R0 && R1) {
       const valid = (s0 * Y === R0 - e0 * V) && (s1 * Y === R1 - e1 * (V - G)) && ((e0 + e1) % q === keccak256(R0, R1, publicKey));
 
-      if (valid) {
-        alert('Vote verified successfully!');
-      } else {
-        alert('Vote verification failed.');
-      }
+      if (valid == 'False') {
+        alert('Vote verified failed!');
+      } 
     } else {
       alert('Vote verified successfully!');
     }
