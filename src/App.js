@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Web3 from 'web3';
-import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { CssBaseline, ThemeProvider, createTheme, Box } from '@mui/material';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import VotingSystem from './contracts/VotingSystem.json';
@@ -12,6 +12,7 @@ import Privacy from './privacy';
 import Terms from './terms';
 import Header from './Header';
 import Footer from './Footer';
+import ContractAddressCheck from './ContractAddressCheck';
 import './App.css';
 
 const darkTheme = createTheme({
@@ -31,6 +32,7 @@ function App() {
   const [contract, setContract] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [passwordVerified, setPasswordVerified] = useState(false);
 
   const loadBlockchainData = async () => {
     if (window.ethereum && isAuthenticated) {
@@ -66,13 +68,18 @@ function App() {
           <TransitionGroup>
             <CSSTransition timeout={300} classNames="fade">
               <Routes>
+                <Route path="/password" element={<ContractAddressCheck setPasswordVerified={setPasswordVerified} />} />
                 <Route
                   path="/login"
                   element={
-                    isAuthenticated ? (
-                      <Navigate to="/voting" />
+                    passwordVerified ? (
+                      isAuthenticated ? (
+                        <Navigate to="/voting" />
+                      ) : (
+                        <Login setIsAuthenticated={setIsAuthenticated} setAccount={setAccount} />
+                      )
                     ) : (
-                      <Login setIsAuthenticated={setIsAuthenticated} setAccount={setAccount} />
+                      <Navigate to="/password" />
                     )
                   }
                 />
@@ -108,7 +115,7 @@ function App() {
                 />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
-                <Route path="/" element={<Navigate to="/login" />} />
+                <Route path="/" element={<Navigate to="/password" />} />
               </Routes>
             </CSSTransition>
           </TransitionGroup>
