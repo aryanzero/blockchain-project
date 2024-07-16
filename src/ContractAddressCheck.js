@@ -1,7 +1,7 @@
 // ContractAddressCheck.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert } from '@mui/material';
+import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Link } from '@mui/material';
 import { styled, css, keyframes } from '@mui/material/styles';
 import VotingSystem from './contracts/VotingSystem.json';
 
@@ -74,6 +74,16 @@ const PasswordContent = styled(CardContent)({
   animation: `${fadeIn} 1s ease-in-out`,
 });
 
+const StyledLink = styled(Link)({
+  color: '#6200ea',
+  marginTop: '20px',
+  fontSize: '1rem',
+  textDecoration: 'none',
+  '&:hover': {
+    textDecoration: 'underline',
+  },
+});
+
 function ContractAddressCheck({ setPasswordVerified }) {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -117,6 +127,11 @@ function ContractAddressCheck({ setPasswordVerified }) {
               {message}
             </Alert>
           )}
+          <Box marginTop="20px">
+            <StyledLink href="/admin-login" variant="body2">
+              Are you an admin?
+            </StyledLink>
+          </Box>
         </PasswordContent>
       </PasswordCard>
     </PasswordContainer>
