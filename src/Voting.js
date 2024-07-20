@@ -137,7 +137,6 @@ function Voting({ account, contract }) {
   const [candidate1, setCandidate1] = useState({ name: 'Aryan', voteCount: 0 });
   const [candidate2, setCandidate2] = useState({ name: 'Ansh', voteCount: 0 });
   const [hasVoted, setHasVoted] = useState(false);
-  const [winner, setWinner] = useState('');
   const [timeLeft, setTimeLeft] = useState(86400); // 24 hours in seconds
   const [votingEnded, setVotingEnded] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -242,11 +241,6 @@ function Voting({ account, contract }) {
     } catch (error) {
       setErrorMessage(error.message);
     }
-  };
-
-  const getResults = async () => {
-    const results = await contract.methods.getResults().call();
-    setWinner(`${results[0]} with ${results[1]} votes`);
   };
 
   const handleClose = () => {
@@ -396,15 +390,6 @@ function Voting({ account, contract }) {
                 Your voting proof: {votingProof}
               </Typography>
             </>
-          )}
-          <Typography variant="h5" style={{ fontFamily: 'Poppins', fontWeight: '600', color: '#240750', marginTop: '20px' }}>
-            Results
-          </Typography>
-          <VoteButton onClick={getResults}>Get Results</VoteButton>
-          {winner && (
-            <Typography variant="body1" style={{ fontFamily: 'Poppins', color: '#240750', marginTop: '10px' }}>
-              {winner}
-            </Typography>
           )}
         </VotingContent>
       </VotingCard>

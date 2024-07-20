@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Web3 from 'web3';
 import { Button, Card, CardContent, Typography, CircularProgress, Container, Box, Alert } from '@mui/material';
 import { styled, css, keyframes } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
+import { CSVLink } from 'react-csv';
 import VotingSystem from './contracts/VotingSystem.json';
+import { db } from './firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const LoginContainer = styled(Container)(
   () => css`
@@ -14,7 +17,7 @@ const LoginContainer = styled(Container)(
     justify-content: center;
     height: 100vh;
     text-align: center;
-    background-color: #FFFFFF; // light blue background
+    background-color: #FFFFFF;
     max-width: 1900px !important;
     width: 100%;
   `,
@@ -23,7 +26,7 @@ const LoginContainer = styled(Container)(
 const LoginCard = styled(Card)({
   padding: '40px 20px',
   textAlign: 'center',
-  backgroundColor: '#ffffff', // light grey background
+  backgroundColor: '#ffffff',
   color: '#240750',
   boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
 });
@@ -31,24 +34,36 @@ const LoginCard = styled(Card)({
 const LoginButton = styled(Button)({
   marginTop: '20px',
   padding: '10px 30px',
-  backgroundColor: '#6200ea', // purple color
+  backgroundColor: '#6200ea',
   fontSize: '1.1rem',
   fontWeight: 'bold',
   color: '#fff',
   '&:hover': {
-    backgroundColor: '#4a148c', // darker purple on hover
+    backgroundColor: '#4a148c',
   },
 });
 
 const AdminButton = styled(Button)({
   marginTop: '20px',
   padding: '10px 30px',
-  backgroundColor: '#9575cd', // lighter purple color
+  backgroundColor: '#9575cd',
   fontSize: '1.1rem',
   fontWeight: 'bold',
   color: '#fff',
   '&:hover': {
-    backgroundColor: '#7e57c2', // slightly darker purple on hover
+    backgroundColor: '#7e57c2',
+  },
+});
+
+const VotesDataButton = styled(Button)({
+  marginTop: '20px',
+  padding: '10px 30px',
+  backgroundColor: '#6200ea',
+  fontSize: '1.1rem',
+  fontWeight: 'bold',
+  color: '#fff',
+  '&:hover': {
+    backgroundColor: '#4a148c',
   },
 });
 
@@ -74,7 +89,26 @@ function Login({ setIsAuthenticated, setAccount }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('info');
+  const [results, setResults] = useState(null);
+  const [csvData, setCsvData] = useState([]);
+  const [isElectionActive, setIsElectionActive] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchElectionStatus = async () => {
+      const electionDoc = await getDoc(doc(db, 'election', 'status'));
+      if (electionDoc.exists()) {
+        const isActive = electionDoc.data().isActive;
+        setIsElectionActive(isActive);
+        if (!isActive) {
+          await fetchResults();
+          await fetchVotesData();
+        }
+      }
+    };
+
+    fetchElectionStatus();
+  }, []);
 
   const loginWithMetamask = async () => {
     setLoading(true);
@@ -147,6 +181,52 @@ function Login({ setIsAuthenticated, setAccount }) {
     setLoading(false);
   };
 
+  const fetchResults = async () => {
+    const web3 = new Web3(window.ethereum);
+    const networkId = await web3.eth.net.getId();
+    const deployedNetwork = VotingSystem.networks[networkId];
+    const contract = new web3.eth.Contract(
+      VotingSystem.abi,
+      deployedNetwork && deployedNetwork.address
+    );
+
+    try {
+      const results = await contract.methods.getResults().call();
+      setResults(`${results.winnerName} with ${results.winnerVoteCount} votes`);
+    } catch (error) {
+      console.error('Error fetching results:', error);
+      setMessageType('error');
+      setMessage('Error fetching results. Please try again.');
+    }
+  };
+
+  const fetchVotesData = async () => {
+    const web3 = new Web3(window.ethereum);
+    const networkId = await web3.eth.net.getId();
+    const deployedNetwork = VotingSystem.networks[networkId];
+    const contract = new web3.eth.Contract(
+      VotingSystem.abi,
+      deployedNetwork && deployedNetwork.address
+    );
+
+    try {
+      const votesArray = await contract.methods.getAllVotes().call();
+      const candidate1Votes = parseInt(votesArray[0], 10);
+      const candidate2Votes = parseInt(votesArray[1], 10);
+
+      const data = [
+        ['Candidate', 'Votes'],
+        ['Candidate 1', candidate1Votes],
+        ['Candidate 2', candidate2Votes],
+      ];
+      setCsvData(data);
+    } catch (error) {
+      console.error('Error fetching votes data:', error);
+      setMessageType('error');
+      setMessage('Error fetching votes data. Please try again.');
+    }
+  };
+
   const handleAdminLogin = () => {
     navigate('/admin-login');
   };
@@ -183,6 +263,20 @@ function Login({ setIsAuthenticated, setAccount }) {
             <Alert severity={messageType} style={{ marginTop: '20px' }}>
               {message}
             </Alert>
+          )}
+          {results && !isElectionActive && (
+            <Typography variant="body1" style={{ marginTop: '20px', fontFamily: 'Poppins', color: '#240750' }}>
+              Voting Results: {results}
+            </Typography>
+          )}
+          {csvData.length > 0 && !isElectionActive && (
+            <Box display="flex" flexDirection="column" alignItems="center" marginTop="20px">
+              <VotesDataButton>
+                <CSVLink data={csvData} filename={"votes_data.csv"} style={{ textDecoration: 'none', color: '#fff' }}>
+                  Download Votes Data
+                </CSVLink>
+              </VotesDataButton>
+            </Box>
           )}
         </LoginContent>
       </LoginCard>
